@@ -1,0 +1,16 @@
+feature,importance
+categorical__Type_TRANSFER,0.22776756
+categorical__Type_DEBIT,0.1398357
+categorical__Type_PAYMENT,0.111899555
+categorical__Type_CASH,0.07743979
+categorical__Order Country_China,0.004005592
+categorical__Product Name_Team Golf Texas Longhorns Putter Grip,0.0035967594
+categorical__Order Region_North Africa,0.003571717
+categorical__Order Country_Japón,0.0035582066
+categorical__Order Country_Haití,0.0035425113
+categorical__Customer Country_Puerto Rico,0.0033866435
+categorical__Order Region_East of USA,0.0033491394
+categorical__Order Country_República Democrática del Congo,0.0033157205
+categorical__Market_USCA,0.0032705765
+categorical__Order Country_Marruecos,0.003232553
+categorical__Product Name_O'Brien Men's Neoprene Life Vest,0.0032226355

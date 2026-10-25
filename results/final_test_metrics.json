@@ -1,0 +1,21 @@
+{
+    "model": "Structured XGBoost",
+    "threshold": 0.7000000000000001,
+    "test_average_precision_pr_auc": 0.07652044725042315,
+    "test_roc_auc": 0.861972858293032,
+    "test_precision": 0.07849538679914833,
+    "test_recall": 0.6646634615384616,
+    "test_f1_score": 0.1404087850704583,
+    "test_rows": 36302,
+    "test_positive_count": 832,
+    "confusion_matrix": [
+        [
+            28978,
+            6492
+        ],
+        [
+            279,
+            553
+        ]
+    ]
+}

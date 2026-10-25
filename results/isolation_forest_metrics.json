@@ -1,0 +1,12 @@
+{
+    "model": "Isolation Forest numeric-only baseline",
+    "average_precision_pr_auc": 0.020987657439857955,
+    "roc_auc": 0.4799861915507495,
+    "precision": 0.01847290640394089,
+    "recall": 0.019230769230769232,
+    "f1_score": 0.018844221105527637,
+    "flagged_records": 812,
+    "anomaly_threshold": 0.6034041707195041,
+    "flagged_fraction": 0.02264550854784282,
+    "threshold_rule": "Flag the highest-scoring records up to approximately the training-set suspected-fraud prevalence."
+}

@@ -1,0 +1,9 @@
+{
+    "model": "XGBoost text embeddings only",
+    "average_precision_pr_auc": 0.021208269932781444,
+    "roc_auc": 0.4875277503046411,
+    "precision": 0.021094439541041482,
+    "recall": 0.30641025641025643,
+    "f1_score": 0.03947151114781173,
+    "classification_threshold": 0.5
+}

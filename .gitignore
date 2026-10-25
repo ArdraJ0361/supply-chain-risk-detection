@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Raw dataset, processed data, and generated embeddings
+data/*
+!data/README.md
+
+# Trained model artifacts
+*.joblib
+*.pkl
+*.npy
+*.npz
+
+# Environment variables and credentials
+.env
+
+# OS files
+.DS_Store
+Thumbs.db

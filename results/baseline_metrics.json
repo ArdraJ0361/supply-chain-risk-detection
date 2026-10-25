@@ -1,0 +1,11 @@
+{
+    "model": "XGBoost structured baseline",
+    "average_precision_pr_auc": 0.08374777578644663,
+    "roc_auc": 0.8740327872088,
+    "precision": 0.07964896689624527,
+    "recall": 0.9192307692307692,
+    "f1_score": 0.14659578818237579,
+    "classification_threshold": 0.5,
+    "validation_pr_auc": 0.08374777578644663,
+    "threshold_analysis_file": "threshold_analysis.csv"
+}
