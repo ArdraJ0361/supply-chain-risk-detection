@@ -1,0 +1,8 @@
+,PR-AUC,PR-AUC,ROC-AUC,ROC-AUC,Precision,Precision,Recall,Recall,F1-score,F1-score
+,mean,std,mean,std,mean,std,mean,std,mean,std
+model,,,,,,,,,,
+Embeddings-only XGBoost,0.0226,0.001,0.4936,0.0134,0.0222,0.0005,0.3063,0.0195,0.0414,0.0011
+Hybrid XGBoost,0.0826,0.0002,0.8696,0.0018,0.0814,0.0026,0.8372,0.0034,0.1483,0.0043
+Hybrid without Type,0.0225,0.0006,0.4965,0.0152,0.0223,0.0016,0.2457,0.0325,0.0408,0.0031
+Structured XGBoost,0.0802,0.0033,0.8681,0.0056,0.0823,0.0027,0.9083,0.0081,0.151,0.0046
+Structured without Type,0.0227,0.0009,0.5006,0.0149,0.0215,0.002,0.2544,0.0414,0.0396,0.0038

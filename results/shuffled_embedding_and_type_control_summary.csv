@@ -1,0 +1,6 @@
+,PR-AUC,PR-AUC,ROC-AUC,ROC-AUC,Precision,Precision,Recall,Recall,F1-score,F1-score
+,mean,std,mean,std,mean,std,mean,std,mean,std
+model,,,,,,,,,,
+Hybrid XGBoost - aligned embeddings,0.0826,0.0002,0.8696,0.0018,0.0814,0.0026,0.8372,0.0034,0.1483,0.0043
+Hybrid XGBoost - shuffled embeddings,0.0806,0.0033,0.8688,0.0048,0.0808,0.0034,0.8621,0.016,0.1478,0.0059
+Type-only rule: TRANSFER,0.081,0.0031,0.8684,0.0031,0.081,0.0031,1.0,0.0,0.1499,0.0052

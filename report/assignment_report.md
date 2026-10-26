@@ -1,16 +1,20 @@
 # LLM-Powered Supply Chain Risk and Fraud Detection
 
-**Course:** DSC624 — Natural Language Processing and Large Language Models  
-**Assignment:** Task 2 — LLM-Powered Supply Chain Risk & Fraud Detection  
-**Student Name:** Ardra J         
-**Student ID:** 2025EMAI10011                  
-**Submission Date:** 15-11-2026           
+**Course:** DSC624 — Natural Language Processing and Large Language Models
+
+**Assignment:** Task 2 — LLM-Powered Supply Chain Risk & Fraud Detection
+
+**Student Name:** Ardra J
+
+**Student ID:** 2025EMAI10011
+
+**Submission Date:** 15-11-2026
 
 ## Abstract
 
 Supply chain systems generate large volumes of transaction, product, and customer data that can be used to identify potentially suspicious activities. This study investigates whether pretrained text embeddings improve suspected-fraud detection compared with traditional structured machine-learning features. Using the DataCo SMART Supply Chain Dataset, the study compares a structured XGBoost classifier, an Isolation Forest anomaly-detection model, an embedding-only XGBoost model using MiniLM, and a hybrid model combining structured features with text embeddings.
 
-To avoid records from the same order appearing across different datasets, the data were divided into training, validation, and test sets grouped by Order Id. Model performance was evaluated primarily using Precision–Recall Area Under the Curve (PR-AUC), alongside ROC-AUC, precision, recall, and F1-score. The structured XGBoost model achieved a test PR-AUC of 0.0765 and ROC-AUC of 0.8620. At a decision threshold of 0.70, it achieved 66.47% recall and 7.85% precision. The hybrid model did not outperform the structured baseline. Feature-ablation experiments also revealed a strong association between payment transaction type and the target label. These findings suggest that structured features were more useful than the selected text embeddings for this dataset, although the results are limited by class imbalance, low precision, and the dataset's suspected-fraud labels.
+To avoid records from the same order appearing across different datasets, the data were divided into training, validation, and test sets grouped by Order Id. Model performance was evaluated primarily using Precision–Recall Area Under the Curve (PR-AUC), alongside ROC-AUC, precision, recall, and F1-score. The structured XGBoost model achieved a test PR-AUC of 0.0765 and ROC-AUC of 0.8620. At a decision threshold of 0.70, it achieved 66.47% recall and 7.85% precision. On the seed-42 validation split, the hybrid model did not outperform the structured baseline. Across three split seeds, the hybrid model had a slightly higher mean PR-AUC, but shuffled-embedding controls did not establish a reliable benefit from the embeddings. Feature-ablation experiments also revealed a strong association between payment transaction type and the target label. These findings suggest that structured features were more useful than the selected text embeddings for this dataset, although the results are limited by class imbalance, low precision, and the dataset's suspected-fraud labels.
 
 ## 1. Introduction
 
@@ -23,10 +27,15 @@ This study uses the DataCo SMART Supply Chain Dataset to investigate whether pre
 ### Research Objectives
 
 1. Develop a structured-data XGBoost classifier for suspected-fraud detection.
+
 2. Evaluate Isolation Forest as an unsupervised anomaly-detection baseline.
+
 3. Investigate pretrained MiniLM embeddings for transaction-related textual and categorical fields.
+
 4. Compare structured, embedding-only, and hybrid feature representations.
+
 5. Examine the influence of payment transaction type through feature-ablation experiments.
+
 6. Evaluate the selected model on a held-out test set using metrics suitable for an imbalanced classification problem.
 
 ## 2. Dataset and Preprocessing
@@ -49,7 +58,7 @@ Numerical features were imputed using the median. Missing categorical values wer
 
 ### 2.3 Data Splitting
 
-The data were divided into training, validation, and test sets using a 60:20:20 split grouped by `Order Id`. This ensured that records belonging to the same order did not appear in multiple splits.
+The data were divided into training, validation, and test sets using a 60:20:20 split grouped by `Order Id` and stratified at the order level. This ensured that records belonging to the same order did not appear in multiple splits.
 
 The held-out test set contained 36,302 records, including 832 positive examples. Text embeddings were generated using the pretrained `sentence-transformers/all-MiniLM-L6-v2` model from eight fields containing product, category, customer-segment, market, geographic, and shipping information.
 
@@ -116,11 +125,25 @@ The confusion matrix contained 28,978 true negatives, 6,492 false positives, 279
 
 ## 5. Discussion
 
-The experiments show that structured XGBoost outperformed the embedding-only and hybrid approaches. The selected text fields mainly contained short categorical labels, product names, and geographical information. These fields may not have provided enough additional semantic information for pretrained embeddings to improve classification.
+On the standardized seed-42 validation comparison, structured XGBoost outperformed the embedding-only and hybrid approaches. In the supplementary three-seed analysis, the hybrid model had a slightly higher mean PR-AUC than the structured model, but the shuffled-embedding control suggests that this small difference is not robust evidence of added value. The selected text fields mainly contained short categorical labels, product names, and geographical information. These fields may not have provided enough additional semantic information for pretrained embeddings to improve classification.
 
 The feature-ablation experiment revealed that removing the payment transaction `Type` feature reduced validation PR-AUC from 0.0837 to 0.0226 for the structured model. Dataset analysis also showed that all records labelled `SUSPECTED_FRAUD` had `Type = TRANSFER`. This strong association may explain much of the model's predictive performance.
 
 However, feature importance does not establish causation. The availability of transaction type at the intended prediction time must be verified to rule out potential information leakage. The Isolation Forest baseline also performed poorly, achieving a validation PR-AUC of 0.0210 and ROC-AUC of 0.4800.
+
+### Embedding Controls and Multi-Seed Robustness
+
+To investigate the contribution of pretrained text embeddings, additional experiments were conducted using three order-level data splits with random seeds 42, 21, and 7. The structured XGBoost and hybrid XGBoost models were compared with an embeddings-only model and versions of the structured and hybrid models that excluded the payment transaction type feature.
+
+Across the three splits, the structured XGBoost model achieved a mean PR-AUC of 0.0802, while the hybrid model achieved 0.0826. Although the hybrid model had a slightly higher mean PR-AUC, the difference was small. The embeddings-only model achieved a mean PR-AUC of 0.0226 and a mean ROC-AUC of 0.4936, indicating limited predictive value from the selected text embeddings.
+
+Removing the payment transaction type feature reduced mean PR-AUC to approximately 0.0225–0.0227. Further analysis showed that all records labelled as suspected fraud had the transaction type TRANSFER. This association suggests that model performance was strongly influenced by a dataset-specific relationship rather than necessarily reflecting broader fraud-detection capabilities.
+
+A shuffled-embedding control was also conducted to investigate whether correctly aligned embeddings improved the hybrid model. The aligned hybrid model achieved a mean PR-AUC of 0.0826, compared with 0.0806 for the shuffled-embedding model. This comparison is descriptive: the difference is small, and the shuffled model performed better on one of the three seeds. The small difference, together with inconsistent results across individual splits, does not establish that the embeddings provide a reliable improvement.
+
+A simple rule that flagged every TRANSFER record achieved 100% recall and a mean F1-score of 0.1499, compared with 0.1483 for the aligned hybrid model. However, this rule would flag many records that were not labelled as suspected fraud. Its PR-AUC is based on binary predictions and should not be interpreted as directly equivalent to the ranking-based PR-AUC of models that produce continuous scores.
+
+These experiments suggest that the selected text embeddings provide limited additional predictive value for this dataset. The strong association between transaction type and the target label also raises concerns about shortcut learning and the generalisability of the results. The multi-seed experiments are treated as a split-sensitivity analysis rather than independent final evaluations because the splits originate from the same underlying dataset.
 
 ## 6. Limitations and Conclusion
 
@@ -133,9 +156,12 @@ In conclusion, structured XGBoost was the strongest supervised approach among th
 ## References
 
 1. DataCo SMART Supply Chain Dataset. Kaggle. https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis
-2. Sentence Transformers. *all-MiniLM-L6-v2* pretrained model. https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+
+2. Sentence Transformers. `all-MiniLM-L6-v2` pretrained model. https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+
 3. XGBoost Documentation. https://xgboost.readthedocs.io/
-4. Scikit-learn Documentation. *Isolation Forest*. https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html
+
+4. Scikit-learn Documentation. `Isolation Forest`. https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html
 
 ## Code Availability
 

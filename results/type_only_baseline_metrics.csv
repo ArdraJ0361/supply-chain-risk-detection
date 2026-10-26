@@ -1,0 +1,2 @@
+model,PR-AUC,ROC-AUC,Precision,Recall,F1-score,threshold,test_rows,flagged_rows
+TRANSFER-only rule,0.0804642166344294,0.8659712433042007,0.0804642166344294,1.0,0.1489437880415324,binary rule,36302,10340

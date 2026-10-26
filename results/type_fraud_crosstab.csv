@@ -1,0 +1,5 @@
+payment_type,non_fraud_count,suspected_fraud_count,total_count,suspected_fraud_rate_pct,percentage_of_all_suspected_fraud_pct
+TRANSFER,45821,4062,49883,8.1431,100.0
+CASH,19616,0,19616,0.0,0.0
+DEBIT,69295,0,69295,0.0,0.0
+PAYMENT,41725,0,41725,0.0,0.0
