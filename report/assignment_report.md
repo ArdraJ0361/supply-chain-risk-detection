@@ -12,7 +12,7 @@
 
 ## Abstract
 
-The role of pretrained text embeddings in fraud detection in supply chain system is studied in this research in comparison with conventional machine learning features. By means of DataCo SMART Supply Chain Dataset, it is considered structured XGBoost classifier, semi-supervised Isolation Forest, embedding-based XGBoost model with MiniLM embeddings, and the hybrid model, which combines structured and text embeddings. The data has been split according to Order Id to avoid overlap between train, validation, and test sets. The metrics of the models included Precision-Recall Area Under the Curve (PR-AUC), as well as ROC-AUC. Structured XGBoost model provided the result of 0.0765 PR-AUC and 0.8620 ROC-AUC, with recall of 66.47% and precision of 7.85% at a decision threshold of 0.70. Across three split seeds, the hybrid model’s PR-AUC differed from structured XGBoost by at most 0.006 (+0.0059, +0.0013 and −0.00002), and a shuffled-embedding control showed no reliable benefit. As for the results, it became clear that all positive labels have referred to TRANSFER class. Thus, the results have been strongly affected by the particular label relations.
+The role of pretrained text embeddings in fraud detection in supply chain system is studied in this research in comparison with conventional machine learning features. By means of DataCo SMART Supply Chain Dataset, it is considered structured XGBoost classifier, semi-supervised Isolation Forest, embedding-based XGBoost model with MiniLM embeddings, and the hybrid model, which combines structured and text embeddings. The data has been split according to Order Id to avoid overlap between train, validation, and test sets. The metrics of the models included Precision-Recall Area Under the Curve (PR-AUC), as well as ROC-AUC. Structured XGBoost model provided the result of 0.0765 PR-AUC and 0.8620 ROC-AUC, with recall of 66.47% and precision of 7.85% at a decision threshold of 0.70. Across three split seeds, the hybrid model’s PR-AUC differed from structured XGBoost by at most 0.006 (+0.0059, +0.0013 and −0.00002), and a shuffled-embedding control showed no reliable benefit. All 4,062 positive labels belong to the TRANSFER payment type, so the results largely reflect this dataset-specific label association. 
 
 ## 1. Introduction
 
@@ -56,11 +56,11 @@ The split sizes were 108,360 training, 35,857 validation, and 36,302 test record
 
 ### 3.1 Structured XGBoost Classifier
 
-XGBoost was used as the primary supervised classification model. It processed numerical features and one-hot-encoded categorical features, with missing numerical values imputed using the median. The classifier was configured with 300 estimators, a maximum tree depth of 5, a learning rate of 0.05, and a positive-class weighting strategy to address class imbalance.
+XGBoost (Chen & Guestrin, 2016) was used as the primary supervised classification model. It processed numerical features and one-hot-encoded categorical features, with missing numerical values imputed using the median. The classifier was configured with 300 estimators, a maximum tree depth of 5, a learning rate of 0.05, and a positive-class weighting strategy to address class imbalance.
 
 ### 3.2 Isolation Forest
 
-Isolation Forest was evaluated as a label-filtered (semi-supervised) anomaly-detection baseline. It used nine numeric transaction and location features and 200 trees (`n_estimators=200`). Median imputation was fitted on the training data, and the detector was fitted only on training records labelled non-fraud. Anomaly scores were used to rank records, with the decision cutoff set to flag approximately the observed positive-class prevalence. Its performance was compared against the labelled validation data.
+Isolation Forest (Liu et al., 2008) was evaluated as a label-filtered (semi-supervised) anomaly-detection baseline. It used nine numeric transaction and location features and 200 trees (`n_estimators=200`). Median imputation was fitted on the training data, and the detector was fitted only on training records labelled non-fraud. Anomaly scores were used to rank records, with the decision cutoff set to flag approximately the observed positive-class prevalence. Its performance was compared against the labelled validation data.
 
 ### 3.3 Text Embeddings
 
@@ -82,7 +82,7 @@ The decision threshold was selected using the validation set by maximizing F1-sc
 
 ### 3.6 Multi-Seed and Control Experiments
 
-For the study of sensitivity to data splits, multi-seed experiments used seed numbers 42, 21, and 7 on the same data. Sensitivity to split seeds was studied here, making it different from external evaluations independent of each other. The metrics of multi-seed classification such as F1 score were computed for a decision threshold of 0.5, which is different from 0.70 used in final experiments. A control experiment for the hybrid model with aligned embeddings against hybrid model with shuffled embeddings was conducted to study the effect of alignment of text embeddings to the record embeddings in hybrid models. The TRANSFER-only rule was set up as a baseline by predicting the positive class for records with payment Type being `TRANSFER`. However, its PR-AUC cannot be compared with PR-AUC obtained from continuous model scores.
+For the study of sensitivity to data splits, multi-seed experiments used seed numbers 42, 21, and 7 on the same data. Because all seeds re-split the same dataset, these runs measure sensitivity to the split and are not independent external evaluations. The metrics of multi-seed classification such as F1 score were computed for a decision threshold of 0.5, which is different from 0.70 used in final experiments. A control experiment for the hybrid model with aligned embeddings against hybrid model with shuffled embeddings was conducted to study the effect of alignment of text embeddings to the record embeddings in hybrid models. The TRANSFER-only rule was set up as a baseline by predicting the positive class for records with payment Type being `TRANSFER`. However, its PR-AUC cannot be compared with PR-AUC obtained from continuous model scores.
 
 ## 4. Experimental Results
 
@@ -145,7 +145,7 @@ The structured XGBoost model was evaluated on the held-out test set using the va
 
 *Table 3. Final test-set performance (held-out test split).*
 
-The confusion matrix contained 28,978 true negatives, 6,492 false positives, 279 false negatives, and 553 true positives. Although the model identified approximately 66.5% of positive records, its precision was only 7.85%, indicating that most flagged records were not labelled as suspected fraud. Validation F1 was nearly flat (0.145–0.149) across thresholds from 0.05 to 0.70, so the selected threshold of 0.70 should not be read as a meaningful tuning gain; at threshold 0.5 the same model reached F1 0.1488 on this test split.
+The confusion matrix (Figure 1) contained 28,978 true negatives, 6,492 false positives, 279 false negatives, and 553 true positives. The precision–recall curve (Figure 2) shows precision staying roughly flat at about 0.08 across almost all recall levels, well above the 0.023 positive-class prevalence but with no operating point that offers high precision. Although the model identified approximately 66.5% of positive records, its precision was only 7.85%, indicating that most flagged records were not labelled as suspected fraud. Validation F1 was nearly flat (0.145–0.149) across thresholds from 0.05 to 0.70, so the selected threshold of 0.70 should not be read as a meaningful tuning gain; at threshold 0.5 the same model reached F1 0.1488 on this test split.
 
 <table style="width:100%; table-layout:fixed;">
 <tr>
