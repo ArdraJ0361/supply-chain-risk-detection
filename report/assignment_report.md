@@ -12,7 +12,7 @@
 
 ## Abstract
 
-The role of pretrained text embeddings in fraud detection in supply chain system is studied in this research in comparison with conventional machine learning features. By means of DataCo SMART Supply Chain Dataset, it is considered structured XGBoost classifier, semi-supervised Isolation Forest, embedding-based XGBoost model with MiniLM embeddings, and the hybrid model, which combines structured and text embeddings. The data has been split according to Order Id to avoid overlap between train, validation, and test sets. The metrics of the models included Precision-Recall Area Under the Curve (PR-AUC), as well as ROC-AUC. Structured XGBoost model provided the result of 0.0765 PR-AUC and 0.8620 ROC-AUC, with recall of 66.47% and precision of 7.85% at a decision threshold of 0.70. Importantly, the hybrid model has shown better results than structured XGBoost for three split seeds in terms of PR-AUC, while shuffled-embedding control has not shown any advantages. As for the results, it became clear that all positive labels have referred to TRANSFER class. Thus, the results have been strongly affected by the particular label relations.
+The role of pretrained text embeddings in fraud detection in supply chain system is studied in this research in comparison with conventional machine learning features. By means of DataCo SMART Supply Chain Dataset, it is considered structured XGBoost classifier, semi-supervised Isolation Forest, embedding-based XGBoost model with MiniLM embeddings, and the hybrid model, which combines structured and text embeddings. The data has been split according to Order Id to avoid overlap between train, validation, and test sets. The metrics of the models included Precision-Recall Area Under the Curve (PR-AUC), as well as ROC-AUC. Structured XGBoost model provided the result of 0.0765 PR-AUC and 0.8620 ROC-AUC, with recall of 66.47% and precision of 7.85% at a decision threshold of 0.70. Across three split seeds, the hybrid model’s PR-AUC differed from structured XGBoost by at most 0.006 (+0.0059, +0.0013 and −0.00002), and a shuffled-embedding control showed no reliable benefit. As for the results, it became clear that all positive labels have referred to TRANSFER class. Thus, the results have been strongly affected by the particular label relations.
 
 ## 1. Introduction
 
@@ -145,7 +145,7 @@ The structured XGBoost model was evaluated on the held-out test set using the va
 
 *Table 3. Final test-set performance (held-out test split).*
 
-The confusion matrix contained 28,978 true negatives, 6,492 false positives, 279 false negatives, and 553 true positives. Although the model identified approximately 66.5% of positive records, its precision was only 7.85%, indicating that most flagged records were not labelled as suspected fraud.
+The confusion matrix contained 28,978 true negatives, 6,492 false positives, 279 false negatives, and 553 true positives. Although the model identified approximately 66.5% of positive records, its precision was only 7.85%, indicating that most flagged records were not labelled as suspected fraud. Validation F1 was nearly flat (0.145–0.149) across thresholds from 0.05 to 0.70, so the selected threshold of 0.70 should not be read as a meaningful tuning gain; at threshold 0.5 the same model reached F1 0.1488 on this test split.
 
 <table style="width:100%; table-layout:fixed;">
 <tr>
@@ -175,7 +175,7 @@ Figure 2. Test-set precision–recall curve; dashed line indicates positive-clas
 
 ## 5. Discussion
 
-Multi-seed analysis of performance reveals no reliable difference between the structured version of XGBoost and the hybrid approach. The shuffled embedding control does not reveal any reliable advantage in using text embeddings either. All the positive labels have Type = TRANSFER, and the models that do not use this variable achieve near-chance performance levels. It would seem that the structure of the labels, rather than any additional semantics contained in the embeddings, drives the performance here.
+Multi-seed analysis of performance reveals no reliable difference between the structured version of XGBoost and the hybrid approach. The shuffled embedding control does not reveal any reliable advantage in using text embeddings either. All the positive labels have Type = TRANSFER, and the models that do not use this variable achieve near-chance performance levels. It would seem that the structure of the labels, rather than any additional semantics contained in the embeddings, drives the performance here. Because all eight embedded fields were also present as one-hot features in the structured model, the embeddings re-encoded information the baseline already had. These results therefore show that re-encoding short categorical fields adds no value here, and do not rule out gains from richer free text.
 
 ## 6. Limitations and Conclusion
 
@@ -183,15 +183,33 @@ The current study makes use of the SUSPECTED_FRAUD flag of the dataset instead o
 
 The current results are subject to limitations caused by the class imbalance, shorter text columns, and use of a single dataset. Further research must confirm the presence of features during prediction and consider richer textual data along with independent fraud verification.
 
+
 ## References
 
-<div style="font-size: 9pt; line-height: 1.05;">
+<ol style="font-size:8pt; line-height:1.05; margin-top:2px; padding-left:18px;">
 
-1. Reimers, N., & Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. *Proceedings of EMNLP-IJCNLP 2019*, 3982–3992. https://doi.org/10.18653/v1/D19-1410
-2. Liu, F. T., Ting, K. M., & Zhou, Z.-H. (2008). Isolation Forest. *2008 Eighth IEEE International Conference on Data Mining*, 413–422. https://doi.org/10.1109/ICDM.2008.17
-3. Chen, T., & Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. *Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, 785–794. https://doi.org/10.1145/2939672.2939785
-4. Wang, W., Wei, F., Dong, L., Bao, H., Yang, N., & Zhou, M. (2020). MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers. *Advances in Neural Information Processing Systems 33*. https://papers.nips.cc/paper/2020/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html
-5. Saito, T., & Rehmsmeier, M. (2015). The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets. *PLOS ONE, 10*(3), e0118432. https://doi.org/10.1371/journal.pone.0118432
-6. DataCo SMART Supply Chain Dataset. Kaggle. https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis
+<li style="margin-bottom:3px;">
+Reimers, N., &amp; Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. <em>Proceedings of EMNLP-IJCNLP 2019</em>, 3982–3992. <a href="https://doi.org/10.18653/v1/D19-1410">DOI</a>.
+</li>
 
-</div>
+<li style="margin-bottom:3px;">
+Liu, F. T., Ting, K. M., &amp; Zhou, Z.-H. (2008). Isolation Forest. <em>2008 Eighth IEEE International Conference on Data Mining</em>, 413–422. <a href="https://doi.org/10.1109/ICDM.2008.17">DOI</a>.
+</li>
+
+<li style="margin-bottom:3px;">
+Chen, T., &amp; Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 785–794. <a href="https://doi.org/10.1145/2939672.2939785">DOI</a>.
+</li>
+
+<li style="margin-bottom:3px;">
+Wang, W., Wei, F., Dong, L., Bao, H., Yang, N., &amp; Zhou, M. (2020). MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers. <em>Advances in Neural Information Processing Systems 33</em>. <a href="https://papers.nips.cc/paper/2020/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html">Paper</a>.
+</li>
+
+<li style="margin-bottom:3px;">
+Saito, T., &amp; Rehmsmeier, M. (2015). The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets. <em>PLOS ONE, 10</em>(3), e0118432. <a href="https://doi.org/10.1371/journal.pone.0118432">DOI</a>.
+</li>
+
+<li style="margin-bottom:3px;">
+DataCo SMART Supply Chain Dataset. Kaggle. <a href="https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis">Dataset link</a>.
+</li>
+
+</ol>
