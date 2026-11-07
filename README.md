@@ -1,175 +1,114 @@
-# Supply Chain Risk and Suspected Fraud Detection
+LLM-Powered Supply Chain Risk & Fraud Detection
+This project evaluates whether pretrained MiniLM text embeddings add value to suspected-fraud classification on the DataCo SMART Supply Chain Dataset. It compares structured XGBoost, an Isolation Forest anomaly detector, embedding-only XGBoost, and hybrid models, with feature-ablation and control experiments.
 
-## Overview
+Important interpretation: the target is the dataset's SUSPECTED_FRAUD label, not independently verified fraud. All 4,062 positive records have Type = TRANSFER; every model without Type performs close to chance. Results therefore reveal a strong dataset-specific label association and should not be interpreted as proof of generalizable fraud detection.
 
-This project investigates machine learning approaches for detecting suspected fraud in supply chain transactions. It compares traditional structured-data modelling with pretrained text embeddings and hybrid feature representations.
+Repository: https://github.com/ArdraJ0361/supply-chain-risk-detection
+Dataset
+Download the DataCo SMART Supply Chain Dataset from Kaggle and place the main file at:
 
-The project was developed as part of an MTech assignment on NLP and Large Language Models.
+data/dataco_supply_chain/DataCoSupplyChainDataset.csv
 
-## Research Objectives
-
-- Build a structured-data classification baseline using XGBoost.
-- Evaluate an unsupervised anomaly-detection approach using Isolation Forest.
-- Investigate pretrained sentence embeddings for transaction-related categorical and textual fields.
-- Compare structured, embedding-only, and hybrid models.
-- Examine the effect of removing the payment transaction type feature.
-- Evaluate the selected model on a held-out test set.
-
-## Dataset
-
-**DataCo SMART Supply Chain Dataset**
-
-Source: [Kaggle dataset](https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis)
-
-Download the dataset and place the extracted CSV file under `data/dataco_supply_chain/`.
-
-The original dataset and generated data files are excluded from Git.
-
-The target variable identifies records labelled `SUSPECTED_FRAUD` in the original Order Status field.
-
-## Experimental Approach
-
-The project includes:
-
-1. Dataset inspection and feature analysis.
-2. Preprocessing and train/validation/test splitting.
-3. Structured-data XGBoost classification.
-4. Isolation Forest anomaly detection.
-5. Pretrained sentence embedding generation using `all-MiniLM-L6-v2`.
-6. Embedding-only and hybrid XGBoost experiments.
-7. Feature ablation to examine the influence of payment type.
-8. Threshold selection using validation data.
-9. Final evaluation using the held-out test data.
-10. Visualization of model performance and feature importance.
-
-The data split groups records by Order Id to avoid placing rows from the same order in multiple splits.
-
-## Setup
-
+The dataset contains 180,519 rows and 53 columns, including 4,062 suspected-fraud records (2.25%). The raw dataset is not committed to Git. See data/README.md for details.
+Setup
 Python 3.11 is recommended.
-
-Create and activate a virtual environment:
-
-```bash
 python3.11 -m venv .venv
 source .venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-```
-
-Download the dataset and place the CSV in the expected directory before running the scripts.
-
-## Running the Experiments
-
-Run all commands from the project root. Ensure the dataset is downloaded and placed at `data/dataco_supply_chain/DataCoSupplyChainDataset.csv` before starting.
-
-### 1. Inspect the dataset
-
-```bash
+Run all commands from the repository root. The dataset must be downloaded before running the pipeline.
+Core experiment pipeline
+1. Inspect and preprocess
 python src/inspect_dataset.py
 python src/analyze_features.py
-```
-
-### 2. Preprocess and split the data
-
-```bash
 python src/data_preprocessing.py
-```
-
-This creates training, validation, and test splits grouped by Order Id to prevent records from the same order appearing in multiple splits.
-
-### 3. Generate text embeddings
-
-```bash
+The data are split by Order Id into training, validation, and test sets (60:20:20), preventing records from the same order appearing in multiple splits.
+2. Generate text embeddings
 python src/text_embeddings.py
-```
-
-This generates pretrained MiniLM embeddings for the training, validation, and test datasets.
-
-### 4. Run the model experiments
-
-```bash
+This encodes eight selected fields using sentence-transformers/all-MiniLM-L6-v2. The combined text format is Column: value | Column: value. MiniLM is a sentence encoder, not a generative LLM. Encoding the full dataset involves about 180,000 texts and may take a while on a CPU.
+3. Run the primary and supporting models
 python src/baseline_models.py
 python src/isolation_forest.py
-python src/embedding_model.py
-python src/hybrid_model.py
-python src/feature_ablation.py
 python src/fair_model_comparison.py
-```
-
-The embedding-only, hybrid, and standardized comparison experiments require the outputs from the earlier preprocessing and embedding steps.
-
-### 5. Analyze the decision threshold
-
-```bash
-python src/tune_threshold.py
-```
-
-This examines how different classification thresholds affect fraud detection performance on the validation set.
-
-### 6. Evaluate the final model
-
-```bash
 python src/final_evaluation.py
-```
-
-The final model uses the validation set for threshold selection and evaluates performance on the held-out test set.
-
-### 7. Consolidate results and generate figures
-
-```bash
-python src/compare_results.py
+python src/tune_threshold.py
 python src/visualize_results.py
-```
+visualize_results.py uses results/fair_model_comparison.csv and the results/final_xgboost_model.joblib artifact produced by the preceding steps to generate plots under results/figures/. These scripts depend on the processed splits and, where relevant, generated embeddings. Use validation data for threshold selection; the test set is reserved for final evaluation.
+4. Multi-seed and control experiments
+Run these in order:
+python src/multiseed_experiments.py
+python src/generate_aligned_embeddings.py
+python src/align_multiseed_embeddings.py
+python src/multiseed_model_comparison.py
+python src/shuffled_embedding_control.py
+python src/analyze_type_fraud.py
+python src/type_only_baseline.py
+These experiments compare split sensitivity across seeds 42, 21, and 7, assess aligned versus shuffled embeddings, and quantify the relationship between Type and the target label. They use the same underlying dataset and are not independent external evaluations.
+Legacy scripts
+The following scripts are retained for historical/earlier experiments but are superseded by fair_model_comparison.py and are not required for the recommended pipeline:
+- src/hybrid_model.py
+- src/feature_ablation.py
+- src/embedding_model.py
+- src/compare_results.py
+src/compare_results.py writes the legacy results/model_comparison.csv; this file is not part of the recommended result set.
+Results
+Multi-seed comparison
+Source file: results/multiseed_model_comparison_summary.csv.
 
-Results are saved under `results/`, and visualizations are saved under `results/figures/`.
+Metrics below are mean ± standard deviation over split seeds 42, 21, and 7. Only the data-split seed varies; all runs use the same underlying dataset. F1 is evaluated at threshold 0.5. The TRANSFER-only rule's PR-AUC is calculated from binary predictions and is not directly comparable to score-based PR-AUC.
+Model	PR-AUC	ROC-AUC	F1
+Structured XGBoost	0.0802 ± 0.0033	0.8681 ± 0.0056	0.151
+Hybrid (aligned embeddings)	0.0826 ± 0.0002	0.8696 ± 0.0018	0.148
+Hybrid (shuffled embeddings)	0.0806 ± 0.0033	0.8688 ± 0.0048	0.148
+TRANSFER-only rule	0.0810 ± 0.0031	0.8684 ± 0.0031	0.150
+Embeddings-only	0.0226 ± 0.0010	0.4936 ± 0.0134	0.041
+Structured without Type	0.0227 ± 0.0009	0.5006 ± 0.0149	0.040
+Hybrid without Type	0.0225 ± 0.0006	0.4965 ± 0.0152	0.041
 
-**Note:** Some scripts depend on artifacts generated by earlier scripts. Run the steps in the order shown above. The dataset, generated embeddings, and trained model artifacts are excluded from Git and must be generated locally.
 
-## Results
+Takeaway: No model reliably outperforms the TRANSFER-only rule in these experiments. The small numerical differences should not be interpreted as evidence of a robust improvement.
 
-The standardized validation comparison found that the structured XGBoost model performed best among the supervised experiments.
+The shuffled-embedding control results are in results/shuffled_embedding_and_type_control_summary.csv.
+Payment Type crosstab
+Source file: results/type_fraud_crosstab.csv.
+Payment type	Rows	Suspected-fraud rows	Suspected-fraud rate
+TRANSFER	49,883	4,062	8.14%
+CASH	19,616	0	0.00%
+DEBIT	69,295	0	0.00%
+PAYMENT	41,725	0	0.00%
 
-The hybrid model did not improve upon the structured baseline, and the embedding-only model performed poorly on this dataset.
 
-The final structured XGBoost evaluation on the held-out test set produced:
+All 4,062 suspected-fraud labels occur in the TRANSFER category. On the same held-out test split, flagging every TRANSFER order gives precision 0.0805, recall 1.0000, and F1 0.1489, compared with F1 0.1404 for structured XGBoost at threshold 0.70.
 
-| Metric | Result |
-|---|---:|
-| PR-AUC (Average Precision) | 0.0765 |
-| ROC-AUC | 0.8620 |
-| Precision | 0.0785 |
-| Recall | 0.6647 |
-| F1-score | 0.1404 |
-| Decision threshold | 0.70 |
+The TRANSFER-only rule metrics are also saved in results/type_only_baseline_metrics.csv.
+Headline model test results
+The Isolation Forest (numeric features, single validation split) achieved PR-AUC 0.0210 and ROC-AUC 0.4800, which is at chance level. Its metrics are recorded in results/isolation_forest_metrics.json.
 
-The threshold was selected using the validation set, not the test set.
+The structured XGBoost model on the held-out test set at the validation-selected threshold of 0.70 achieved:
+Metric	Result
+PR-AUC (Average Precision)	0.0765
+ROC-AUC	0.8620
+Precision	0.0785
+Recall	0.6647
+F1-score	0.1404
 
-Although recall was approximately 66.5%, precision was approximately 7.9%. Consequently, many flagged records were not labelled as suspected fraud. The model should be treated as an experimental screening aid rather than a reliable fraud determination system.
 
-## Limitations
-
-- The target represents the dataset's `SUSPECTED_FRAUD` label, not independently verified fraud.
-- The payment `Type` feature is strongly associated with the target. The ablation experiment demonstrates that model performance declines substantially when this feature is excluded.
-- The dataset's text-related fields are largely short categorical labels and product names, which may limit the benefit of sentence embeddings.
-- Results on this dataset may not generalize to other supply chains or real-world fraud patterns.
-
-## Repository Structure
-
-```text
+The hybrid’s small PR-AUC advantage (0.0826 vs 0.0802) is within seed variation, and the shuffled-embedding control does not support a reliable embedding benefit. All models without Type perform near chance (PR-AUC approximately 0.022). These results suggest that text embeddings added no measurable value for the short categorical and product text used here.
+Limitations
+- SUSPECTED_FRAUD is a dataset label, not independently verified fraud.
+- All positive labels occur in Type = TRANSFER; feature availability at prediction time must be verified.
+- The dataset is class-imbalanced and model precision is low.
+- The text fields are limited; results may not generalize to richer text or other supply chains.
+- Multi-seed experiments assess split sensitivity on one dataset, not independent external validity.
+Repository structure
 supply-chain-risk-detection/
-├── data/
-│   └── README.md
+├── data/README.md
+├── report/assignment_report.md
+├── report/assignment_report.pdf
 ├── results/
 │   └── figures/
 ├── src/
 ├── .gitignore
 ├── README.md
 └── requirements.txt
-```
-
-Dataset files, generated embeddings, virtual environments, and serialized model artifacts are excluded from Git.
+The raw dataset, processed data, generated embeddings, virtual environments, and serialized model artifacts (*.joblib) are excluded from Git by .gitignore. The summary and evaluation CSV/JSON result files currently included under results/ are committed snapshots; rerun the documented scripts to regenerate them. Generated plots are written to results/figures/. See report/assignment_report.pdf for the report and report/assignment_report.md for its editable source.

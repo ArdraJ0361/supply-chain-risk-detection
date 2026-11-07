@@ -8,6 +8,8 @@ venv/
 .ipynb_checkpoints/
 
 # Raw dataset, processed data, and generated embeddings
+embeddings/
+processed_data/
 data/*
 !data/README.md
 
